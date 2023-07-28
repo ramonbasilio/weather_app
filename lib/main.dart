@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:weaher_app/constant/constants.dart';
 import 'package:weaher_app/provider/app_provider.dart';
+import 'package:weaher_app/view/page_inicial_new.dart';
 import 'package:weaher_app/view/page_search_city.dart';
 import 'package:weaher_app/view/page_weather_forecast.dart';
 import 'firebase_options.dart';
@@ -29,7 +32,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        appBarTheme: AppBarTheme(color: Constants.BACKGROUND_NIGHT), //(Theme.of(context).textTheme) 
+        textTheme: GoogleFonts.openSansTextTheme(Theme.of(context).textTheme), 
+        primarySwatch: Colors.grey,
       ),
       initialRoute: '/',
       routes: {

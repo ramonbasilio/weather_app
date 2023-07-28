@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 class Utils {
   static String utf8convert(String text) {
     List<int> bytes = text.toString().codeUnits;
@@ -29,4 +31,13 @@ class Utils {
     }
     return result;
   }
+
+  static String DataFormated(String date) {
+    return DateFormat('dd/MM/yyyy HH:hh')
+        .format(DateTime.parse(date))
+        .toString();
+  }
+
+    
+  
 }

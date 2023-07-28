@@ -1,48 +1,87 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+
+import 'package:provider/provider.dart';
+import 'package:weaher_app/constant/constants.dart';
 import 'package:weaher_app/model/model_forecastday.dart';
-import 'package:weaher_app/widgets/big_container.dart';
+import 'package:weaher_app/provider/app_provider.dart';
+
+import 'package:weaher_app/view/page_inicial_new.dart';
+
 import '../service/http_service.dart';
 
-
-class PageWeatherForecast extends StatelessWidget {
+class PageWeatherForecast extends StatefulWidget {
   const PageWeatherForecast({super.key});
+
+  @override
+  State<PageWeatherForecast> createState() => _PageWeatherForecastState();
+}
+
+class _PageWeatherForecastState extends State<PageWeatherForecast> {
+  void reload() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF041023),
+      backgroundColor: Constants.BACKGROUND_DAY,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Center(
-              child: FutureBuilder<ForecastDayFull>(
-                future: HttpService().GetWeatherCurrent(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SizedBox(
-                      height: 600,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                           CircularProgressIndicator(),
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Align(alignment: Alignment.center,
-                      child: Text(
-                          'Nenhuma cidade pesquisada ainda...${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    ForecastDayFull dataWeather = snapshot.data as ForecastDayFull;
-                    return BigContainer(dataWeather: dataWeather);
-                  } else {
-                    return Container();
-                  }
-                },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {});
+          },
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Consumer<AppProvider>(
+              builder: (context, value, child) => Center(
+                child: FutureBuilder<ForecastDayFull>(
+                  future: HttpService().GetWeatherCurrent(value.citySaved),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox(
+                        height: 600,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                          ],
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Align(
+                        alignment: Alignment.center,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.3,
+                            ),
+                            Image.asset(
+                              'Assets/NewAssets/day/warning.png',
+                              height: 100,
+                              width: 100,
+                            ),
+                            Text(
+                              'Opsss...${snapshot.error}',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      ForecastDayFull dataWeather =
+                          snapshot.data as ForecastDayFull;
+
+                      return PageInicialNew(
+                          dataWeather: dataWeather, reload: reload);
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
               ),
             ),
           ),

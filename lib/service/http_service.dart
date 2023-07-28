@@ -10,7 +10,8 @@ import "package:http/http.dart" as http;
 import 'firebase_service.dart';
 
 class HttpService {
-  Future<List<ModelSearchCity>> GetSearchCity({required String city}) async {
+  Future<List<ModelSearchCity>> GetSearchCity(String city,
+      [bool? localPosition]) async {
     Uri url = Uri.https(
       Constants.URLBASE,
       Constants.URLSEARCH,
@@ -26,6 +27,9 @@ class HttpService {
       final List jsonResponse = json.decode(response.body);
       List<ModelSearchCity> responseCity =
           jsonResponse.map((e) => ModelSearchCity.fromMap(e)).toList();
+      if (localPosition != null && localPosition) {
+        FirebaseService().saveCitySearch(city);
+      }
       return responseCity;
     } else {
       return [];
@@ -33,18 +37,22 @@ class HttpService {
     }
   }
 
-  Future<ForecastDayFull> GetWeatherCurrent() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> dados = await FirebaseService().getCitySave();
-    print(dados);
+  Future<ForecastDayFull> GetWeatherCurrent([String? city]) async {
+    String q = '';
+    if (city!.isNotEmpty) {
+      
+      q = city;
+    } else {
+      Map<String, dynamic> dados = await FirebaseService().getCitySave();
+      print("Método GetWeather... $dados");
+      q = dados['cidade'];
+    }
 
     Uri url = Uri.https(
       Constants.URLBASE,
       Constants.URLFORECAST,
       {
-        'q': dados['cidade'],
+        'q': q,
         'key': Constants.KEYAPI,
         'lang': 'pt',
         'days': '2',
